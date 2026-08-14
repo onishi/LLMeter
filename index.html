@@ -33,9 +33,9 @@
     <main id="dashboard">
       <section class="hero">
         <div>
-          <p class="eyebrow">FRIDAY, AUGUST 14</p>
-          <h1>Good morning, Alex.</h1>
-          <p class="subtitle">Here’s how your AI usage is looking today.</p>
+          <p class="eyebrow" id="todayLabel"></p>
+          <h1>LLMクォータを、ひと目で。</h1>
+          <p class="subtitle">各サービスの残量と次回リセットをまとめて確認できます。</p>
         </div>
         <button class="refresh" id="refreshButton">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6v5h-5M4 18v-5h5M18.5 9A7 7 0 0 0 6.7 6.7L4 11m16 2-2.7 4.3A7 7 0 0 1 5.5 15"/></svg>
@@ -45,60 +45,40 @@
       </section>
 
       <section class="summary" aria-label="利用状況サマリー">
-        <div><span class="summary-icon mint">↗</span><p>Total usage today<strong>64%</strong></p></div>
-        <div><span class="summary-icon lavender">⌁</span><p>Most used model<strong>Claude 3.5 Sonnet</strong></p></div>
-        <div><span class="summary-icon peach">◷</span><p>Next reset<strong>Codex · 2h 14m</strong></p></div>
+        <div><span class="summary-icon mint">↗</span><p>平均残量<strong id="averageRemaining">—</strong></p></div>
+        <div><span class="summary-icon lavender">⌁</span><p>残量が最も少ないサービス<strong id="lowestService">—</strong></p></div>
+        <div><span class="summary-icon peach">◷</span><p>接続中のサービス<strong id="connectedCount">—</strong></p></div>
       </section>
 
       <section class="section-heading" id="usage">
-        <div><h2>Your quotas</h2><p>Usage across all connected services.</p></div>
-        <button class="manage">Manage connections</button>
+        <div><h2>クォータ一覧</h2><p>接続しているすべてのサービスの利用状況です。</p></div>
+        <button class="manage" id="manageConnections">クォータを編集</button>
       </section>
 
-      <section class="quota-grid" aria-label="LLM クォータ">
-        <article class="quota-card" data-percent="78">
-          <div class="card-top"><div class="service-icon claude">AI</div><div><h3>Claude</h3><p>Anthropic</p></div><span class="connected">Connected</span></div>
-          <div class="quota-copy"><span>Weekly messages</span><strong>78% <small>remaining</small></strong></div>
-          <div class="progress"><i style="--value:78%;--color:#e97855"></i></div>
-          <div class="details"><span><b>1,248</b> of 1,600 left</span><span>Resets Monday</span></div>
-          <div class="model"><span>Current model</span><strong>Claude 3.5 Sonnet</strong></div>
-        </article>
-
-        <article class="quota-card" data-percent="42">
-          <div class="card-top"><div class="service-icon codex">⌘</div><div><h3>Codex</h3><p>OpenAI</p></div><span class="connected">Connected</span></div>
-          <div class="quota-copy"><span>5-hour limit</span><strong>42% <small>remaining</small></strong></div>
-          <div class="progress"><i style="--value:42%;--color:#22a47c"></i></div>
-          <div class="details"><span><b>84</b> of 200 requests left</span><span>Resets in 2h 14m</span></div>
-          <div class="model"><span>Current model</span><strong>GPT-5.3-Codex</strong></div>
-        </article>
-
-        <article class="quota-card" data-percent="91">
-          <div class="card-top"><div class="service-icon copilot"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17c-4 1-4-4-5-5m10 7v-3.5c0-1 .1-1.4-.5-2 3-.3 6.2-1.5 6.2-6A4.6 4.6 0 0 0 16.5 4c.1-.3.5-1.7-.1-3.5 0 0-1-.3-3.6 1.3a12 12 0 0 0-6.5 0C3.7.2 2.7.5 2.7.5 2.1 2.3 2.5 3.7 2.6 4a4.6 4.6 0 0 0-1.2 3.5c0 4.5 3.2 5.7 6.2 6-.5.5-.6 1.1-.6 2V19"/></svg></div><div><h3>GitHub Copilot</h3><p>GitHub</p></div><span class="connected">Connected</span></div>
-          <div class="quota-copy"><span>Premium requests</span><strong>91% <small>remaining</small></strong></div>
-          <div class="progress"><i style="--value:91%;--color:#6965d8"></i></div>
-          <div class="details"><span><b>273</b> of 300 left</span><span>Resets Sep 1</span></div>
-          <div class="model"><span>Plan</span><strong>Copilot Pro</strong></div>
-        </article>
-
-        <article class="quota-card" data-percent="65">
-          <div class="card-top"><div class="service-icon gemini">✦</div><div><h3>Gemini</h3><p>Google</p></div><span class="connected">Connected</span></div>
-          <div class="quota-copy"><span>Daily requests</span><strong>65% <small>remaining</small></strong></div>
-          <div class="progress"><i style="--value:65%;--color:#4c83e9"></i></div>
-          <div class="details"><span><b>975</b> of 1,500 left</span><span>Resets in 8h 42m</span></div>
-          <div class="model"><span>Current model</span><strong>Gemini 2.5 Pro</strong></div>
-        </article>
-      </section>
+      <section class="quota-grid" id="quotaGrid" aria-label="LLM クォータ"></section>
 
       <section class="insight">
         <div class="sparkle">✦</div>
-        <div><h3>You’re pacing well</h3><p>At your current rate, all quotas should last until their next reset.</p></div>
+        <div><h3 id="insightTitle">クォータ状況を確認中</h3><p id="insightCopy">保存された残量をもとに利用状況を判定します。</p></div>
         <div class="week-bars" aria-label="過去7日間の利用状況"><i style="height:35%"></i><i style="height:52%"></i><i style="height:42%"></i><i style="height:72%"></i><i style="height:58%"></i><i class="today" style="height:88%"></i><i style="height:64%"></i></div>
-        <span class="average">7-day average <strong>58%</strong></span>
+        <span class="average">平均残量 <strong id="insightAverage">—</strong></span>
       </section>
     </main>
 
     <footer><span>LLMeter</span><p>Your data stays on your device.</p><div><a href="#privacy">Privacy</a><a href="#help">Help</a></div></footer>
-    <div class="toast" id="toast" role="status">All quotas are up to date.</div>
+    <dialog class="settings-dialog" id="settingsDialog" aria-labelledby="settingsTitle">
+      <form method="dialog" id="quotaForm">
+        <div class="dialog-header">
+          <div><p>QUOTA SETTINGS</p><h2 id="settingsTitle">クォータを更新</h2></div>
+          <button class="dialog-close" value="cancel" aria-label="閉じる">×</button>
+        </div>
+        <p class="dialog-help">各サービスの管理画面で確認した上限と残量を入力してください。値はこの端末内だけに保存されます。</p>
+        <div id="quotaFields" class="quota-fields"></div>
+        <p class="form-error" id="formError" role="alert"></p>
+        <div class="dialog-actions"><button type="button" class="reset-data" id="resetData">デモデータに戻す</button><button class="save-data" value="save">変更を保存</button></div>
+      </form>
+    </dialog>
+    <div class="toast" id="toast" role="status" aria-live="polite">All quotas are up to date.</div>
     <script src="app.js"></script>
   </body>
 </html>
