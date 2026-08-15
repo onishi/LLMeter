@@ -55,4 +55,24 @@ npm start   # python3 -m http.server 4173 でローカル起動
 npm run check  # node --check app.js で構文チェック
 ```
 
+## Cloudflare Pages へのデプロイ
+
+ビルド不要の静的サイトなので、Cloudflare Pages の設定は以下のいずれかで行えます。
+
+**ダッシュボードから接続する場合**（推奨）:
+
+1. Cloudflare ダッシュボード → Workers & Pages → Create → Pages → リポジトリを接続
+2. Framework preset は `None`
+3. Build command は空欄のまま
+4. Build output directory は `/`（リポジトリルート）
+
+**Wrangler CLI からデプロイする場合**:
+
+```bash
+npx wrangler login   # 初回のみ、Cloudflare アカウントで認証
+npm run deploy        # wrangler pages deploy（wrangler.toml の設定を使用）
+```
+
+`wrangler.toml` に `pages_build_output_dir = "."` を設定済みのため、`wrangler pages deploy` はビルドディレクトリの指定なしでリポジトリルートをそのままアップロードします。
+
 詳細な実装ガイドは [`CLAUDE.md`](./CLAUDE.md) を参照してください。

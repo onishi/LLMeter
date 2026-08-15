@@ -10,6 +10,7 @@ LLMeter is a static, single-page dashboard for tracking usage quotas across LLM 
 
 - `npm start` — serves the app at http://localhost:4173 via `python3 -m http.server 4173`. Just open `index.html` directly in a browser also works since there's no build step.
 - `npm run check` — runs `node --check app.js` to syntax-check the JS (no test suite exists).
+- `npm run deploy` — runs `wrangler pages deploy` to publish to Cloudflare Pages (requires `wrangler login` first). `wrangler.toml` sets `pages_build_output_dir = "."` since there's no build step — the repo root is uploaded as-is.
 
 ## Architecture
 
