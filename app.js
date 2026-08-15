@@ -74,8 +74,8 @@ function renderDashboard() {
 function renderFields() {
   quotaFields.innerHTML = services.map((service) => `<fieldset>
     <legend><span class="service-icon ${service.id}">${service.icon}</span><span>${service.name}<small>${service.vendor}</small></span></legend>
-    <label>残り<input name="${service.id}-remaining" type="number" min="0" value="${service.remaining}" required></label>
-    <label>上限<input name="${service.id}-limit" type="number" min="1" value="${service.limit}" required></label>
+    <label>残り<input name="${service.id}-remaining" type="number" min="0" step="1" value="${service.remaining}" required></label>
+    <label>上限<input name="${service.id}-limit" type="number" min="1" step="1" value="${service.limit}" required></label>
     <label class="model-input">モデル / プラン<input name="${service.id}-model" value="${escapeHTML(service.model)}" required></label>
   </fieldset>`).join('');
 }
@@ -109,9 +109,11 @@ document.querySelector('#quotaForm').addEventListener('submit', (event) => {
   event.preventDefault();
   const data = new FormData(event.currentTarget);
   const nextServices = services.map((service) => ({ ...service, remaining: Number(data.get(`${service.id}-remaining`)), limit: Number(data.get(`${service.id}-limit`)), model: data.get(`${service.id}-model`).trim().slice(0, 80) }));
-  const invalidService = nextServices.find((service) => service.remaining > service.limit);
+  const invalidService = nextServices.find((service) =>
+    !Number.isFinite(service.remaining) || !Number.isFinite(service.limit) ||
+    service.limit <= 0 || service.remaining < 0 || service.remaining > service.limit);
   if (invalidService) {
-    document.querySelector('#formError').textContent = `${invalidService.name} の残量は上限以下にしてください。`;
+    document.querySelector('#formError').textContent = `${invalidService.name} の残量は0以上、上限以下の数値にしてください。`;
     quotaFields.querySelector(`[name="${invalidService.id}-remaining"]`).focus();
     return;
   }
