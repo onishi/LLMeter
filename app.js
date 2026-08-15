@@ -76,7 +76,7 @@ function renderFields() {
     <legend><span class="service-icon ${service.id}">${service.icon}</span><span>${service.name}<small>${service.vendor}</small></span></legend>
     <label>残り<input name="${service.id}-remaining" type="number" min="0" step="1" value="${service.remaining}" required></label>
     <label>上限<input name="${service.id}-limit" type="number" min="1" step="1" value="${service.limit}" required></label>
-    <label class="model-input">モデル / プラン<input name="${service.id}-model" value="${escapeHTML(service.model)}" required></label>
+    <label class="model-input">モデル / プラン<input name="${service.id}-model" value="${escapeHTML(service.model)}" maxlength="80" required></label>
   </fieldset>`).join('');
 }
 
@@ -125,6 +125,7 @@ document.querySelector('#quotaForm').addEventListener('submit', (event) => {
 });
 
 document.querySelector('#resetData').addEventListener('click', () => {
+  if (!confirm('保存済みのクォータをすべてデモデータに戻します。よろしいですか?')) return;
   services = structuredClone(defaultServices);
   localStorage.removeItem(STORAGE_KEY);
   renderFields();
