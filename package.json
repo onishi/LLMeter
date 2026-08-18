@@ -1,10 +1,19 @@
 {
   "name": "llmeter",
   "version": "1.0.0",
+  "description": "Local CLI for viewing LLM usage quotas",
   "private": true,
+  "type": "module",
+  "bin": {
+    "llmeter": "./bin/llmeter.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
-    "start": "python3 -m http.server 4173",
-    "check": "node --check app.js",
-    "deploy": "wrangler pages deploy"
+    "cli": "node bin/llmeter.mjs",
+    "start": "node bin/llmeter.mjs",
+    "check": "node --check bin/llmeter.mjs && node --check src/cli.mjs && node --check src/claude-refresh.mjs && node --check src/collect.mjs && node --check src/format.mjs && node --check src/github-auth.mjs && node --check src/service.mjs && node --check src/state.mjs && node --check src/providers/claude.mjs && node --check src/providers/codex.mjs && node --check src/providers/github.mjs && node --check scripts/claude-statusline.mjs && node --check scripts/claude-statusline-wrapper.mjs",
+    "test": "node --test"
   }
 }
