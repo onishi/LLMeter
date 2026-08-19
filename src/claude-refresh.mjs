@@ -12,11 +12,17 @@ function cacheUpdatedAt(path) {
   }
 }
 
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export function refreshClaudeUsage({
   environment = process.env,
   platform = process.platform,
   spawnCommand = spawn,
   timeoutMs = 25_000,
+  cacheGraceMs = 3_000,
+  cachePollIntervalMs = 200,
 } = {}) {
   if (platform !== 'darwin') {
     return Promise.resolve({ ok: false, message: 'Claudeの自動更新は現在macOSに対応しています。' });
@@ -69,12 +75,28 @@ expect eof
 
     child.on('error', () => finish({ ok: false, message: 'Claude CLIを起動できませんでした。' }));
     child.on('exit', (code) => {
-      const updatedAt = cacheUpdatedAt(cachePath);
-      if (code === 0 && updatedAt && updatedAt !== previousUpdatedAt) {
-        finish({ ok: true, updatedAt });
-      } else {
+      if (code !== 0) {
         finish({ ok: false, message: 'Claudeの利用枠を更新できませんでした。' });
+        return;
       }
+      // The status-line hook that writes the cache runs asynchronously and can
+      // still be in flight when the expect script exits, so poll briefly
+      // instead of checking the cache exactly once.
+      (async () => {
+        const deadline = Date.now() + cacheGraceMs;
+        for (;;) {
+          const updatedAt = cacheUpdatedAt(cachePath);
+          if (updatedAt && updatedAt !== previousUpdatedAt) {
+            finish({ ok: true, updatedAt });
+            return;
+          }
+          if (Date.now() >= deadline) {
+            finish({ ok: false, message: 'Claudeの利用枠を更新できませんでした。' });
+            return;
+          }
+          await delay(cachePollIntervalMs);
+        }
+      })();
     });
     timer = setTimeout(() => {
       child.kill('SIGTERM');
