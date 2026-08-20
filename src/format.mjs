@@ -109,7 +109,9 @@ function compactMetricLabel(metric) {
 
 function progressBar(remainingPercent, width, color) {
   const filled = Math.round((remainingPercent / 100) * width);
-  return `${paint('█'.repeat(filled), percentColor(remainingPercent), color)}${paint('░'.repeat(width - filled), ANSI.dim, color)}`;
+  const trackColor = percentColor(remainingPercent);
+  const emptyColor = trackColor === ANSI.red ? ANSI.red : ANSI.dim;
+  return `${paint('█'.repeat(filled), trackColor, color)}${paint('░'.repeat(width - filled), emptyColor, color)}`;
 }
 
 function metricLine(metric, referenceDate, options) {
