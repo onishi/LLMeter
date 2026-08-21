@@ -82,7 +82,7 @@ Claude Codeのstatus lineへ次を設定すると、応答後に5時間・7日�
 }
 ```
 
-既存のstatus lineを残す場合は`scripts/claude-statusline-wrapper.mjs`を使えます。保存先は`LLMETER_STATE_DIR`環境変数で変更できます。
+既存のstatus lineを残す場合は`scripts/claude-statusline-wrapper.mjs`を使えます。既存スクリプトのパスは`LLMETER_EXISTING_STATUSLINE`環境変数で指定してください（未設定時はllmeterの出力のみになります）。保存先は`LLMETER_STATE_DIR`環境変数で変更できます。
 
 キャッシュを明示的に更新する場合は次を実行します。
 
